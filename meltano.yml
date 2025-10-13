@@ -1,0 +1,28 @@
+version: 1
+send_anonymous_usage_stats: true
+project_id: "tap-personio"
+default_environment: test
+venv:
+  backend: uv
+environments:
+- name: test
+plugins:
+  extractors:
+  - name: "tap-personio"
+    namespace: "tap_personio"
+    pip_url: -e .
+    capabilities:
+    - state
+    - catalog
+    - discover
+    - about
+    - stream-maps
+    - structured-logging
+    config:
+      client_id: $TAP_PERSONIO_CLIENT_ID
+      client_secret: $TAP_PERSONIO_CLIENT_SECRET
+
+  loaders:
+  - name: target-jsonl
+    variant: andyh1203
+    pip_url: target-jsonl
