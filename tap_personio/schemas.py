@@ -186,3 +186,11 @@ org_units_schema = PropertiesList(
         ),
     ),
 ).to_dict()
+
+custom_attributes_schema = PropertiesList(
+    Property("key", StringType),
+    Property("label", StringType),
+    Property("type", StringType),
+    Property("universal_id", StringType),
+    Property("options", ArrayType(StringType)),
+).to_dict()

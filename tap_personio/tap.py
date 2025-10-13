@@ -57,6 +57,7 @@ class TapPersonio(Tap):
             streams.PersonsStream(self),
             streams.EmploymentsStream(self),
             streams.OrgUnitsStream(self),
+            streams.CustomAttributesStream(self),
         ]
 
 

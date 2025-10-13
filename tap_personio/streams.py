@@ -8,11 +8,11 @@ from singer_sdk.exceptions import FatalAPIError
 from singer_sdk.helpers import types
 
 from tap_personio.client import PersonioStream
-from tap_personio.schemas import employments_schema, org_units_schema, persons_schema
+from tap_personio.schemas import employments_schema, org_units_schema, persons_schema, custom_attributes_schema
 
 
 class PersonsStream(PersonioStream):
-    """Define custom stream."""
+    """Stream for Personio persons endpoint."""
 
     name = "persons"
     path = "/persons"
@@ -27,7 +27,7 @@ class PersonsStream(PersonioStream):
 
 
 class EmploymentsStream(PersonioStream):
-    """Define custom stream."""
+    """Stream for Personio employments endpoint."""
 
     name = "employments"
     path = "/persons/{person_id}/employments"
@@ -58,7 +58,7 @@ class EmploymentsStream(PersonioStream):
 
 
 class OrgUnitsStream(PersonioStream):
-    """Define custom stream."""
+    """Stream for Personio org units endpoint."""
 
     name = "org_units"
     path = "/org-units/{org_unit_id}"
@@ -115,3 +115,24 @@ class OrgUnitsStream(PersonioStream):
         params = super().get_url_params(context, next_page_token)
         params["type"] = context.get("org_unit_type")
         return params
+
+
+class CustomAttributesStream(PersonioStream):
+    """Stream for Personio custom attributes endpoint."""
+
+    name = "custom_attributes"
+    path = ""
+    schema = custom_attributes_schema
+    primary_keys: t.ClassVar[list[str]] = ["key"]
+    records_jsonpath = "$.data[*]"
+
+    def get_url(self, context: dict | None) -> str:
+        """Return the URL for the stream, potentially using context.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Returns:
+            The URL for the stream.
+        """
+        return "http://api.personio.de/v1/company/employees/custom-attributes"
