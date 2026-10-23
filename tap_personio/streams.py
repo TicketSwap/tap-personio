@@ -16,10 +16,14 @@ class PersonsStream(PersonioStream):
 
     name = "persons"
     path = "/persons"
-    primary_keys: t.ClassVar[list[str]] = ["id"]
+    primary_keys = ("id",)
     schema = persons_schema
 
-    def get_child_context(self, record: dict, context: dict | None) -> dict:
+    def get_child_context(
+        self,
+        record: types.Record,
+        context: types.Context | None,
+    ) -> types.Context:
         """Return a context dictionary for child streams."""
         return {
             "person_id": record["id"],
@@ -32,7 +36,7 @@ class EmploymentsStream(PersonioStream):
     name = "employments"
     path = "/persons/{person_id}/employments"
     parent_stream_type = PersonsStream
-    primary_keys: t.ClassVar[list[str]] = ["id"]
+    primary_keys = ("id",)
     schema = employments_schema
     state_partitioning_keys = []
 
@@ -63,7 +67,7 @@ class OrgUnitsStream(PersonioStream):
     name = "org_units"
     path = "/org-units/{org_unit_id}"
     parent_stream_type = EmploymentsStream
-    primary_keys: t.ClassVar[list[str]] = ["id"]
+    primary_keys = ("id",)
     schema = org_units_schema
     records_jsonpath = "$"
 
@@ -71,10 +75,10 @@ class OrgUnitsStream(PersonioStream):
     def visited_units(self) -> set[str]:
         """Set of already visited org unit IDs to prevent duplicates."""
         if not hasattr(self, "_visited_units"):
-            self._visited_units = set()
+            self._visited_units: set[str] = set()
         return self._visited_units
 
-    def get_records(self, context: dict) -> t.Iterable[dict[str, t.Any]]:
+    def get_records(self, context: types.Context | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
 
         Each record emitted should be a dictionary of property names to their values.
@@ -85,6 +89,8 @@ class OrgUnitsStream(PersonioStream):
         Yields:
             One item per (possibly processed) record in the API.
         """
+        if context is None:
+            return
         org_unit_id: str = context["org_unit_id"]
         if org_unit_id in self.visited_units:
             self.logger.info(f"Skipping already visited org unit ID: {org_unit_id}")
@@ -100,7 +106,7 @@ class OrgUnitsStream(PersonioStream):
 
     def get_url_params(
         self,
-        context: dict,
+        context: types.Context | None,
         next_page_token: t.Any | None,
     ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
@@ -113,7 +119,7 @@ class OrgUnitsStream(PersonioStream):
             A dictionary of URL query parameters.
         """
         params = super().get_url_params(context, next_page_token)
-        params["type"] = context.get("org_unit_type")
+        params["type"] = (context or {}).get("org_unit_type")
         return params
 
 
@@ -123,10 +129,10 @@ class CustomAttributesStream(PersonioStream):
     name = "custom_attributes"
     path = ""
     schema = custom_attributes_schema
-    primary_keys: t.ClassVar[list[str]] = ["key"]
+    primary_keys = ("key",)
     records_jsonpath = "$.data[*]"
 
-    def get_url(self, context: dict | None) -> str:
+    def get_url(self, context: types.Context | None) -> str:
         """Return the URL for the stream, potentially using context.
 
         Args:
