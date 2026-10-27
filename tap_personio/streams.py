@@ -5,10 +5,17 @@ from __future__ import annotations
 import typing as t
 
 from singer_sdk.exceptions import FatalAPIError
-from singer_sdk.helpers import types
 
 from tap_personio.client import PersonioStream
-from tap_personio.schemas import employments_schema, org_units_schema, persons_schema, custom_attributes_schema
+from tap_personio.schemas import (
+    custom_attributes_schema,
+    employments_schema,
+    org_units_schema,
+    persons_schema,
+)
+
+if t.TYPE_CHECKING:
+    from singer_sdk.helpers import types
 
 
 class PersonsStream(PersonioStream):
@@ -22,7 +29,7 @@ class PersonsStream(PersonioStream):
     def get_child_context(
         self,
         record: types.Record,
-        context: types.Context | None,
+        context: types.Context | None,  # noqa: ARG002
     ) -> types.Context:
         """Return a context dictionary for child streams."""
         return {
@@ -38,12 +45,12 @@ class EmploymentsStream(PersonioStream):
     parent_stream_type = PersonsStream
     primary_keys = ("id",)
     schema = employments_schema
-    state_partitioning_keys = []
+    state_partitioning_keys = []  # noqa: RUF012
 
     def generate_child_contexts(
         self,
         record: types.Record,
-        context: types.Context | None,
+        context: types.Context | None,  # noqa: ARG002
     ) -> t.Iterable[types.Context | None]:
         """Generate child contexts.
 
@@ -93,7 +100,7 @@ class OrgUnitsStream(PersonioStream):
             return
         org_unit_id: str = context["org_unit_id"]
         if org_unit_id in self.visited_units:
-            self.logger.info(f"Skipping already visited org unit ID: {org_unit_id}")
+            self.logger.info("Skipping already visited org unit ID: %s", org_unit_id)
             return
         self.visited_units.add(org_unit_id)
         try:
@@ -107,7 +114,7 @@ class OrgUnitsStream(PersonioStream):
     def get_url_params(
         self,
         context: types.Context | None,
-        next_page_token: t.Any | None,
+        next_page_token: t.Any | None,  # noqa: ANN401
     ) -> dict[str, t.Any]:
         """Return a dictionary of values to be used in URL parameterization.
 
@@ -132,7 +139,7 @@ class CustomAttributesStream(PersonioStream):
     primary_keys = ("key",)
     records_jsonpath = "$.data[*]"
 
-    def get_url(self, context: types.Context | None) -> str:
+    def get_url(self, context: types.Context | None) -> str:  # noqa: ARG002
         """Return the URL for the stream, potentially using context.
 
         Args:

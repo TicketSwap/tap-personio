@@ -1,3 +1,5 @@
+"""JSON schemas for the Personio streams."""
+
 from singer_sdk.typing import (
     ArrayType,
     DateTimeType,
