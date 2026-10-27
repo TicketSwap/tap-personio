@@ -7,7 +7,6 @@ import sys
 from singer_sdk import Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
 
-# TODO: Import your custom stream types here:
 from tap_personio import streams
 
 if sys.version_info >= (3, 12):
@@ -21,7 +20,6 @@ class TapPersonio(Tap):
 
     name = "tap-personio"
 
-    # TODO: Update this section with the actual config values you expect:
     config_jsonschema = th.PropertiesList(
         th.Property(
             "client_id",

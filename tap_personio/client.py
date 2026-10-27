@@ -8,7 +8,7 @@ from functools import cached_property
 from urllib.parse import parse_qsl
 
 from singer_sdk.authenticators import OAuthAuthenticator, SingletonMeta
-from singer_sdk.pagination import BaseHATEOASPaginator  # noqa: TC002
+from singer_sdk.pagination import BaseHATEOASPaginator
 from singer_sdk.streams import RESTStream
 
 if sys.version_info >= (3, 12):
@@ -110,13 +110,14 @@ class PersonioStream(RESTStream):
     def post_process(
         self,
         row: dict,
-        context: Context | None = None,
+        context: Context | None = None,  # noqa: ARG002
     ) -> dict:
         """As needed, append or transform raw data to match expected structure.
 
         Args:
             row: An individual record from the stream.
             context: The stream context.
+
         Returns:
             The processed record.
         """
